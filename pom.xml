@@ -8,13 +8,13 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>25.0.0</version>
+		<version>16.1.0</version>
 		<relativePath />
 	</parent>
 
 	<groupId>uk.ac.cam.cruk</groupId>
 	<artifactId>SAHF_Analysis_</artifactId>
-	<version>1.0.0</version>
+	<version>1.6.7</version>
 
 	<name>SAHF Analysis</name>
 	<description>A Maven project implementing an ImageJ 1.x plugin.</description>
@@ -94,14 +94,13 @@
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
-			<version>1.52n</version>
+			<version>1.52o</version>
 		</dependency>
 		
 		<dependency>
 		    <groupId>net.imagej</groupId>
 		    <artifactId>imagej-legacy</artifactId>
-		    <version>0.34.0</version>
-		</dependency>
+		    </dependency>
 		
 		<dependency>
 			<groupId>sc.fiji</groupId>
@@ -110,16 +109,56 @@
 		</dependency>
 		
 		<dependency>
+		    <groupId>nz.ac.waikato.cms.weka</groupId>
+		    <artifactId>weka-stable</artifactId>
+		    <version>3.8.3</version>
+		</dependency>
+	
+		<dependency>
 		    <groupId>commons-io</groupId>
 		    <artifactId>commons-io</artifactId>
 		    <version>2.6</version>
 		</dependency>
 		
 		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-math3</artifactId>
+		    <version>3.2</version>
+		</dependency>
+
+		<dependency>
 		    <groupId>com.github.ijpb</groupId>
 		    <artifactId>MorphoLibJ</artifactId>
 		    <version>v1.4.0</version>
 		</dependency>
+		
+		<dependency>
+		    <groupId>de.biomedical-imaging.ij</groupId>
+		    <artifactId>ij_blob</artifactId>
+		    <version>1.4.0</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>ome</groupId>
+		    <artifactId>ome-xml</artifactId>
+		    <version>5.2.4</version>
+		</dependency>
+			<dependency>
+		    <groupId>ome</groupId>
+		    <artifactId>formats-gpl</artifactId>
+		    <version>6.0.1</version>
+		</dependency>
+		<dependency>
+		    <groupId>loci</groupId>
+		    <artifactId>loci_plugins</artifactId>
+		    <version>4.4.9</version>
+		</dependency>
+		<dependency>
+		    <groupId>loci</groupId>
+		    <artifactId>loci-common</artifactId>
+		    <version>4.4.12</version>
+		</dependency>
+				
 
 	</dependencies>
 	<packaging>jar </packaging>

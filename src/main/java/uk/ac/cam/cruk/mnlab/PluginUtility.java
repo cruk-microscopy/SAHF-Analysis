@@ -115,7 +115,8 @@ public class PluginUtility {
 		
 		File f = new File(pluginDir);
 		File[] matchingFiles = f.listFiles(new FilenameFilter() {
-		    public boolean accept(File dir, String name) {
+		    @Override
+			public boolean accept(File dir, String name) {
 		        return name.contains(pluginKeywords);
 		    }
 		});

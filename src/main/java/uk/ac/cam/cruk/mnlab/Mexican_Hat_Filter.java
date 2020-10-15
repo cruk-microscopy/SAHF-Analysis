@@ -5,8 +5,6 @@ import ij.*;
 import ij.gui.*;
 import ij.process.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
 
 
 /**
@@ -136,6 +134,7 @@ public class Mexican_Hat_Filter implements ExtendedPlugInFilter, DialogListener 
 	}
 
 	// Called after modifications to the dialog. Returns true if valid input.
+	@Override
 	public boolean dialogItemChanged(GenericDialog gd, AWTEvent e) {
 		int r = (int)(gd.getNextNumber());
 		showKernel = gd.getNextBoolean();
@@ -148,7 +147,7 @@ public class Mexican_Hat_Filter implements ExtendedPlugInFilter, DialogListener 
 
 	public float[] computeKernel2D(int r) {
 		sz=2*r+1;
-		final double sigma2=2*((double)r/3.0+1/6.0)*((double)r/3.0 +1/6.0);
+		final double sigma2=2*(r/3.0+1/6.0)*(r/3.0 +1/6.0);
 		float[] kernel=new float[sz*sz];
 		final double PIs=4/Math.sqrt(Math.PI*sigma2)/sigma2/sigma2;
 		float sum=0;
@@ -176,7 +175,7 @@ public class Mexican_Hat_Filter implements ExtendedPlugInFilter, DialogListener 
 	public float[] gauss1D(int r) {
 		sz=2*r+1;
 		//final double sigma2=2*((double)r/3.5 +1/7.0)*((double)r/3.5 +1/7.0);
-		final double sigma2=((double)r/3.0+1/6)*((double)r/3.0 +1/6.0);
+		final double sigma2=(r/3.0+1/6)*(r/3.0 +1/6.0);
 		float[] kernel=new float[sz];
 		float sum=0;
 		final double PIs=1/Math.sqrt(2*Math.PI*sigma2);
@@ -199,7 +198,7 @@ public class Mexican_Hat_Filter implements ExtendedPlugInFilter, DialogListener 
 
 	public float[] diff2Gauss1D(int r) {
 		sz=2*r+1;
-		final double sigma2=((double)r/3.0+1/6)*((double)r/3.0 +1/6.0);
+		final double sigma2=(r/3.0+1/6)*(r/3.0 +1/6.0);
 		float[] kernel=new float[sz];
 		//((w^2-r^2)*%e^(-r^2/(2*w^2)))/(2^(3/2)*sqrt(%pi)*w^4*abs(w))
 		float sum=0;

@@ -8,29 +8,44 @@
 
 package uk.ac.cam.cruk.mnlab;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Insets;
 import java.awt.Panel;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
+import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
+import javax.swing.Timer;
+import javax.swing.border.EmptyBorder;
 
 import org.scijava.prefs.DefaultPrefService;
 
 import inra.ijpb.morphology.Morphology;
 import inra.ijpb.morphology.Strel;
-import uk.ac.cam.cruk.mnlab.RoiManagerUtility;
+import uk.ac.cam.cruk.mnlab.RoiUtility;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.NonBlockingGenericDialog;
+import ij.gui.Overlay;
 import ij.gui.Roi;
+import ij.measure.Calibration;
+import ij.measure.ResultsTable;
 import ij.plugin.PlugIn;
-import ij.plugin.filter.GaussianBlur;
+import ij.plugin.frame.PlugInFrame;
 import ij.plugin.frame.RoiManager;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
-import ij.process.StackConverter;
 
 /**
  *
@@ -38,7 +53,7 @@ import ij.process.StackConverter;
  */
 public class GenerateCellMask implements PlugIn {
 	
-	protected ImagePlus imp;
+	protected ImagePlus imp = null;
 	protected static int impC = 1;
 	protected static int impZ = 1;
 	protected static int impT = 1;
@@ -46,6 +61,26 @@ public class GenerateCellMask implements PlugIn {
 	protected static double sensitivity = 50;
 	protected static double enlarge = 0;
 	protected static Boolean display = false;
+	
+	
+	protected static final int lineWidth = 40;
+	protected static final Color panelColor = new Color(204, 229, 255);
+	protected static final Font textFont = new Font("Helvetica", Font.PLAIN, 12);
+	protected static final Color fontColor = Color.BLACK;
+	protected static final Font errorFont = new Font("Helvetica", Font.BOLD, 12);
+	protected static final Color errorFontColor = Color.RED;
+	protected static final Color textAreaColor = new Color(204, 229 , 255);
+	protected static final Font panelTitleFont = new Font("Helvetica", Font.BOLD, 13);
+	protected static final Color panelTitleColor = Color.BLUE;
+	protected static final EmptyBorder border = new EmptyBorder(new Insets(5, 5, 5, 5));
+	protected static final Dimension textAreaMax = new Dimension(260, 800);
+	protected static final Dimension tablePreferred = new Dimension(260, 100);
+	protected static final Dimension tableMax = new Dimension(260, 150);
+	protected static final Dimension panelTitleMax = new Dimension(500, 30);
+	protected static final Dimension panelMax = new Dimension(500, 200);
+	protected static final Dimension panelMin = new Dimension(380, 200);
+	protected static final Dimension buttonSize = new Dimension(90, 10);
+	protected static JTextArea sourceInfo;
 
 	@Override
 	public void run(String arg) {
@@ -79,6 +114,91 @@ public class GenerateCellMask implements PlugIn {
 		
 		imp = WindowManager.getCurrentImage();
 		
+		
+		
+		
+		/* THIS
+		PlugInFrame f = new PlugInFrame("Laplacian of Gaussian ROI delineator");
+		f.setLayout(new BoxLayout(f, BoxLayout.Y_AXIS));
+		// create a parent panel for both title and content panels
+		JPanel parentPanel = new JPanel();
+		parentPanel.setBorder(border);
+		parentPanel.setBackground(f.getBackground());
+		parentPanel.setLayout(new BoxLayout(parentPanel, BoxLayout.Y_AXIS));
+		//parentPanel.add(titlePanel, BorderLayout.NORTH);
+		// create and configure the content panel
+		JPanel contentPanel = new JPanel();
+		contentPanel.setBorder(border);
+		contentPanel.setBackground(panelColor);
+		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+		// create and configure the title panel "Sample image and ROIs"
+		JLabel title = new JLabel("Source Info");
+		title.setFont(panelTitleFont);
+		title.setForeground(panelTitleColor);
+		contentPanel.add(title);
+		title.setAlignmentX(Component.CENTER_ALIGNMENT);
+		
+		sourceInfo = new JTextArea();
+		sourceInfo.setMaximumSize(textAreaMax);
+		sourceInfo.setEditable(false);
+		contentPanel.add(sourceInfo);
+		sourceInfo.setAlignmentX(Component.CENTER_ALIGNMENT);
+		
+		JPanel buttonPanel = new JPanel();
+		JButton btnRefresh = new JButton("refresh");
+		JButton btnLoad = new JButton("ROI");
+		JButton btnPrepare = new JButton("measure");
+
+		//btnRefresh.setPreferredSize(buttonSize);
+		// Use group layout for a JTextArea to display source image info
+		// and 3 buttons horizontally aligned: refresh, load, resize
+		
+		
+		buttonPanel.setBorder(border);
+		buttonPanel.setBackground(panelColor);
+		buttonPanel.setMaximumSize(panelMax);
+		
+		contentPanel.add(buttonPanel);
+		buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		// configure the JTextArea to display source image info
+		//sourceInfo.setBackground(textAreaColor);
+		
+		sourceInfo.setText(getImageInfo(source));
+		if (source==null) {
+			sourceInfo.setFont(errorFont);
+			sourceInfo.setForeground(errorFontColor);
+		}
+		// configure refresh button
+		btnRefresh.addActionListener(new ActionListener() { 
+		    @Override 
+		    public void actionPerformed(ActionEvent ae) {refreshSource();}
+		});
+		// configure load button
+		btnLoad.addActionListener(new ActionListener() { 
+		    @Override 
+		    public void actionPerformed(ActionEvent ae) {loadNewSource();}
+		});
+		// configure prepare button
+		btnPrepare.addActionListener(new ActionListener() { 
+		    @Override 
+		    public void actionPerformed(ActionEvent ae) {prepareSource();}
+		});
+		// configure resize button
+		btnResize.addActionListener(new ActionListener() { 
+		    @Override 
+		    public void actionPerformed(ActionEvent ae) {resizeSource();}
+		});
+		// add title and content panel to the parent panel, and finally add to plugin frame
+		parentPanel.add(contentPanel);
+		contentPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+		//f.add(parentPanel, BorderLayout.NORTH);
+		f.add(parentPanel);
+		f.pack();
+		
+		///THIS
+		*/
+		
 		NonBlockingGenericDialog gd = new NonBlockingGenericDialog("Auto Cell ROI delineator");
 
 		//gd.addNumericField("C", impC, 0);
@@ -103,16 +223,93 @@ public class GenerateCellMask implements PlugIn {
 		JButton refresh = new JButton("Refresh source");
 		refresh.addActionListener (new ActionListener()  
 	        {  
-	            public void actionPerformed( ActionEvent e )  
+	            @Override
+				public void actionPerformed( ActionEvent e )  
 	            {  
 	                imp = WindowManager.getCurrentImage();
 	                gd.repaint();
 	                if (imp == null) IJ.log("No image is open!");
 	            }  
 	        }); 
+		
+		JButton measure = new JButton("Measure source");
+		measure.addActionListener (new ActionListener() {  
+            @Override
+			public void actionPerformed( ActionEvent e ) {  
+                if (imp == null) return;
+                if (imp.getOverlay()==null) return;
+                
+                int[] dim = imp.getDimensions();
+                int numC = dim[2];
+                int numZ = dim[3];
+                int numT = dim[4];
+                if (numT>1) return;
+                
+                Calibration cal = imp.getCalibration();
+                boolean calibrated = cal.getUnit().toLowerCase().equals("micron");
+                double pixelSize = cal.pixelWidth;
+                
+                double[] scaleFactorArea = new double[numZ];
+                for (int z=0; z<numZ; z++) {
+                	scaleFactorArea[z] = 1;
+                	double xScale = 1.0; double yScale = 1.0;
+                	String label = imp.getStack().getSliceLabel(imp.getStackIndex(1, z+1, 1));
+					int scaleIdx = label.indexOf("Scale:");
+					if (scaleIdx==-1) {
+						System.out.println("Scale string not detected in image " + imp.getTitle());
+						continue;
+					}
+					String[] scaleString = label.substring(scaleIdx+6, label.length()).split(",");
+					if (scaleString.length!=3) {
+						System.out.println("Scale string format wrong in image " + imp.getTitle());
+						continue;
+					}
+					String xScaleString = scaleString[1];
+					String yScaleString = scaleString[2];
+					xScale = Double.valueOf(xScaleString.substring(1, xScaleString.length())); // xScale = current/original
+					yScale = Double.valueOf(yScaleString.substring(1, yScaleString.length()));
+					scaleFactorArea[z] = (1/xScale)*(1/yScale);
+				}
+
+                Roi roi = imp.getRoi();
+                imp.deleteRoi();
+                ImagePlus impDup = imp.duplicate();
+                imp.setRoi(roi);
+
+                Overlay overlay = imp.getOverlay();
+                Roi[] RoiArray = overlay.toArray().clone();
+
+                ResultsTable table = new ResultsTable();
+
+                for (int i=0; i<RoiArray.length; i++) {
+                	Roi r = RoiArray[i];
+                	if (!r.getName().toLowerCase().equals("all")) continue;
+                	impDup.setRoi(r);
+                	for (int c=0; c<numC; c++) {
+                		table.incrementCounter();
+                		table.addValue("Sample", r.getZPosition());
+                		table.addValue("Channel", c+1);
+                		impDup.setPositionWithoutUpdate(c+1, r.getZPosition(), 1);
+                		ImageStatistics stat = impDup.getStatistics();
+                		double area = stat.area * scaleFactorArea[r.getZPosition()-1];
+                		double mean = stat.mean;
+                		double stdDev = stat.stdDev;
+
+                		table.addValue(calibrated ? "area (µm^2)" : "area (pixel^2)", area);
+                		table.addValue("mean", mean);
+                		table.addValue("total", area*mean);
+                		table.addValue("standard deviation", stdDev);
+                		table.addValue("CV", stdDev/mean);
+                	}
+                }
+                table.show(imp.getTitle() + "Measurement");
+                impDup.changes=true; impDup.close(); System.gc();
+            }  
+        }); 
 
 		Panel customPane = new Panel();
 		customPane.add(refresh);
+		customPane.add(measure);
 
 		gd.addPanel(customPane);
 
@@ -137,9 +334,9 @@ public class GenerateCellMask implements PlugIn {
 		//println(minimumSize);
 
 		// prepare RoiManager for operation
-		RoiManagerUtility.resetManager();
+		RoiUtility.resetManager();
 		RoiManager rm = RoiManager.getInstance2();
-		RoiManagerUtility.hideManager();
+		RoiUtility.hideManager();
 
 		Roi r = imp.getRoi();
 		imp.deleteRoi();
@@ -227,7 +424,7 @@ public class GenerateCellMask implements PlugIn {
 		}
 		imp.getWindow().setVisible(true);
 		imp.deleteRoi();
-		RoiManagerUtility.showManager();
+		RoiUtility.showManager();
 		
 		if (display) {
 			mask.show();
